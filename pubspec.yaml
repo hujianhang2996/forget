@@ -33,6 +33,7 @@ dependencies:
   intro_views_flutter: ^2.6.0
   intro_slider: ^2.2.2
 #  webview_flutter: ^0.3.9+1
+  flutter_appauth: ^0.3.0
 
 dev_dependencies:
   flutter_test:
