@@ -44,6 +44,9 @@ android {
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         flavorDimensions "versionCode"
+        manifestPlaceholders = [
+                'appAuthRedirectScheme': 'msauth://com.odyssey.forget/R2V6kZ6IllvaZdRwOCQTSmdkZXE%3D'
+        ]
     }
 
     signingConfigs {

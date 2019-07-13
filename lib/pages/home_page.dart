@@ -11,8 +11,9 @@ import '../generated/i18n.dart';
 import 'package:provider/provider.dart';
 import '../notifier/notifier.dart';
 import 'dart:async';
+import 'dart:math';
+import 'web_page.dart';
 import 'package:flutter_appauth/flutter_appauth.dart';
-//import 'web_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -130,15 +131,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           icon: Icon(Icons.settings_cell),
                           label: Text(S.of(context).theme)),
                       FlatButton.icon(
-                          onPressed: () async{
+                          onPressed: () async {
                             FlutterAppAuth appAuth = FlutterAppAuth();
                             var result = await appAuth.authorizeAndExchangeCode(
                               AuthorizationTokenRequest(
-                                '04f758af-9e5b-4b09-b50b-de9b656c8a23',
-                                'msauth.odyssey.Forget://auth',
-                                discoveryUrl: 'https://login.microsoftonline.com/common',
-                                scopes: ['openid','profile', 'email', 'offline_access', 'api'],
-                              ),
+                                  '04f758af-9e5b-4b09-b50b-de9b656c8a23',
+                                  'msauth://com.odyssey.forget/R2V6kZ6IllvaZdRwOCQTSmdkZXE%3D',
+                                  discoveryUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+                                  scopes: [
+                                    'openid',
+                                    'profile',
+                                    'offline_access',
+                                    'user.read',
+                                    'calendars.read'
+                                  ]),
                             );
                             print(result);
                           },
