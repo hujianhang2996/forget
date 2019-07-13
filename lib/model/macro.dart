@@ -287,6 +287,10 @@ class _DefaultCupertinoLocalizations extends CupertinoLocalizations {
   String _get(String key) {
     return _dict[_languageCode][key];
   }
+
+  @override
+  // TODO: implement todayLabel
+  String get todayLabel => null;
 }
 
 class SearchWorker extends SearchDelegate<String> {
