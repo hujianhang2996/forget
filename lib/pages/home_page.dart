@@ -11,9 +11,10 @@ import '../generated/i18n.dart';
 import 'package:provider/provider.dart';
 import '../notifier/notifier.dart';
 import 'dart:async';
-import 'dart:math';
-import 'web_page.dart';
-import 'package:flutter_appauth/flutter_appauth.dart';
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'dart:io';
+import 'package:oauth2/oauth2.dart' as oauth2;
+import 'package:http/http.dart' as http;
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -132,21 +133,65 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           label: Text(S.of(context).theme)),
                       FlatButton.icon(
                           onPressed: () async {
-                            FlutterAppAuth appAuth = FlutterAppAuth();
-                            var result = await appAuth.authorizeAndExchangeCode(
-                              AuthorizationTokenRequest(
-                                  '04f758af-9e5b-4b09-b50b-de9b656c8a23',
-                                  'msauth://com.odyssey.forget/R2V6kZ6IllvaZdRwOCQTSmdkZXE%3D',
-                                  discoveryUrl: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
-                                  scopes: [
-                                    'openid',
-                                    'profile',
-                                    'offline_access',
-                                    'user.read',
-                                    'calendars.read'
-                                  ]),
+                            final authorizationEndpoint = Uri.parse(
+                                "https://login.microsoftonline.com/common/oauth2/v2.0/authorize");
+                            final tokenEndpoint = Uri.parse(
+                                "https://login.microsoftonline.com/common/oauth2/v2.0/token");
+                            final identifier =
+                                "dbaa2965-9553-4e56-bfe8-c31e3b522519";
+                            final secret = "mgdusWFE2xAZ@[x:saVV-c2Hd7y7[p2-";
+                            final redirectUrl = Uri.parse(
+                                "msauth://com.odyssey.forget/R2V6kZ6IllvaZdRwOCQTSmdkZXE%3D");
+                            final credentialsFile =
+                                new File("./credentials.json");
+                            var exists = await credentialsFile.exists();
+                            if (exists) {
+                              var credentials = new oauth2.Credentials.fromJson(
+                                  await credentialsFile.readAsString());
+                              print(oauth2.Client(credentials,
+                                  identifier: identifier, secret: secret));
+                            }
+                            var grant = new oauth2.AuthorizationCodeGrant(
+                                identifier,
+                                authorizationEndpoint,
+                                tokenEndpoint,
+                                secret: secret);
+                            final flutterWebviewPlugin =
+                                new FlutterWebviewPlugin();
+                            flutterWebviewPlugin.launch(
+                              grant.getAuthorizationUrl(redirectUrl, scopes: [
+                                'offline_access',
+                                'files.readwrite.all'
+                              ]).toString(),
                             );
-                            print(result);
+                            flutterWebviewPlugin.onUrlChanged
+                                .listen((String url) {
+                              if (url.contains(
+                                  'msauth://com.odyssey.forget/R2V6kZ6IllvaZdRwOCQTSmdkZXE%3D?code=')) {
+                                flutterWebviewPlugin.close();
+                                print('------code get-------');
+                                print(url.split('=')[1]);
+
+                                http
+                                    .post('/common/oauth2/v2.0/token',
+                                        headers: {
+                                          'Host':
+                                              'https://login.microsoftonline.com',
+                                          'Content-Type':
+                                              'application/x-www-form-urlencoded',
+                                        },
+                                        body:
+                                            'client_id=dbaa2965-9553-4e56-bfe8-c31e3b522519'
+                                            '&scope=offline_access%20files.readwrite.all'
+                                            '&code=${url.split('=')[1]}'
+                                            '&redirect_uri=msauth://com.odyssey.forget/R2V6kZ6IllvaZdRwOCQTSmdkZXE%3D'
+                                            '&grant_type=authorization_code')
+                                    .then((response) {
+                                  print('------token get-------');
+                                  print(response);
+                                });
+                              }
+                            });
                           },
                           icon: Icon(Icons.cloud),
                           label: Text('OneDrive ' + S.of(context).undone))
