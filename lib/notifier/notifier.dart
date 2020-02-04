@@ -346,13 +346,16 @@ class ListPageStateNotifier extends ChangeNotifier {
 class Setting extends ChangeNotifier {
   Locale _locale;
   bool _lightThheme;
+  bool _login;
 
   Locale get locale => _locale;
   bool get lightTheme => _lightThheme;
+  bool get login => _login;
 
-  Setting({String lanCode, bool lightThheme}){
+  Setting({String lanCode, bool isLightTheme, bool isLogin}){
     _locale = Locale(lanCode ?? 'zh');
-    _lightThheme = lightThheme ?? true;
+    _lightThheme = isLightTheme ?? true;
+    _login = isLogin ?? false;
   }
 
   _refresh() {
@@ -364,6 +367,11 @@ class Setting extends ChangeNotifier {
 
   void setLocale(Locale newLocale){
     _locale = newLocale;
+    notifyListeners();
+  }
+
+  void setLogin(bool isLogin){
+    _login = isLogin;
     notifyListeners();
   }
 

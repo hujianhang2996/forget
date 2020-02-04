@@ -16,6 +16,7 @@ import 'package:intro_slider/slide_object.dart';
 import 'package:intro_slider/intro_slider.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   notificationsPlugin = FlutterLocalNotificationsPlugin();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   prefs = await SharedPreferences.getInstance();
@@ -51,7 +52,7 @@ class _MyAppState extends State<MyApp> {
               ChangeNotifierProvider<LabelsNotifier>.value(
                   value: LabelsNotifier(l: snapshot.data[2])),
               ChangeNotifierProvider<Setting>.value(
-                  value: Setting(lanCode: lanCode, lightThheme: lightTheme))
+                  value: Setting(lanCode: lanCode, isLightTheme: lightTheme))
             ],
             child: Consumer<Setting>(
                 builder: (context, setting, _) => MaterialApp(

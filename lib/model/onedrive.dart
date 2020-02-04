@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,7 +18,7 @@ class OneDrive {
   static final String matchRedirectUri = 'msauth://com.odyssey.forget'
       '/R2V6kZ6IllvaZdRwOCQTSmdkZXE%3D?code=';
 
-  static logIn() {
+  static void logIn(VoidCallback callback) async {
     final flutterWebviewPlugin = FlutterWebviewPlugin();
     String codeUrl = '$authorizeEndPoint'
         '?response_type=code'
@@ -25,7 +26,7 @@ class OneDrive {
         '&redirect_uri=$redirectUri'
         '&scope=offline_access+files.readwrite.all+user.readwrite+openid';
 
-    flutterWebviewPlugin.launch(codeUrl);
+    await flutterWebviewPlugin.launch(codeUrl);
     flutterWebviewPlugin.onUrlChanged.listen((String url) async {
       if (url.contains(matchRedirectUri)) {
         await flutterWebviewPlugin.close();
@@ -41,11 +42,12 @@ class OneDrive {
                 '&grant_type=authorization_code');
         File file = File(appDocPath + '/token.json');
         file.writeAsString(tokenResponse.body);
+        callback();
       }
     });
   }
 
-  static Future<String> logInState() async {
+  static Future<Map<String, dynamic>> logInState() async {
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String appDocPath = appDocDir.path;
     File tokenFile = File(appDocPath + '/token.json');
@@ -61,10 +63,10 @@ class OneDrive {
           });
       Map<String, dynamic> getResponseJson = json.decode(getResponse.body);
 //      print(getResponse.body);
-      return getResponseJson['displayName'];
+      return {'name': getResponseJson['displayName'], 'login': true};
 //      return getResponse.body[0];
     } else {
-      return '未登录';
+      return {'name': '未登录', 'login': false};
     }
   }
 

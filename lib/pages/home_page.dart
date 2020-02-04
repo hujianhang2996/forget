@@ -128,15 +128,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                           },
                           icon: Icon(Icons.settings_cell),
                           label: Text(S.of(context).theme)),
-                      FutureBuilder<String>(
+                      FutureBuilder<Map<String, dynamic>>(
                         future: OneDrive.logInState(),
                         builder: (context, snapshot) {
-                          print('ssssssssssssss');
                           if (snapshot.hasData) {
+                            setting.setLogin(snapshot.data['login']);
                             return FlatButton.icon(
-                                onPressed: OneDrive.logIn,
-                                icon: Icon(Icons.cloud),
-                                label: Text(snapshot.data));
+                                onPressed: setting.login ?
+                                    (){
+                                  OneDrive.logOut();
+                                  setting..setLogin(false);
+                                } :
+                                    () => OneDrive.logIn(()=>setting.setLogin(true)),
+                                icon: Icon(setting.login ? Icons.exit_to_app : Icons.cloud),
+                                label: Text(snapshot.data['name']));
                           } else {
                             return Center(
                               child: CircularProgressIndicator(),
@@ -145,12 +150,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         },
                       ),
                       FlatButton.icon(
-                          onPressed: OneDrive.logOut,
-                          icon: Icon(Icons.cloud),
+                          onPressed: null,
+                          icon: Icon(Icons.exit_to_app),
                           label: Text('Log Out')),
                       FlatButton.icon(
-                          onPressed: OneDrive.downLoad,
-                          icon: Icon(Icons.cloud_download),
+                          onPressed: setting.login ? OneDrive.downLoad : null,
+                          icon: Icon(Icons.file_download),
                           label: Text('download'))
                     ],
                   ),
